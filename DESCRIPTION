@@ -1,0 +1,16 @@
+Package: ksm
+Title: Tools for Analysis of Kinase-Substrate Mapping Experiments
+Version: 0.1
+Authors@R: "Jesse Lipp <jesse.lipp@ucsf.edu> [aut, cre]"
+Description: Processing, analysis, and visualization of kinase-substrate
+    mapping experiments.
+Depends:
+    R (>= 3.1.0)
+Imports:
+    dplyr,
+    igraph,
+    data.table,
+    stringr,
+    seqinr
+License: What license is it under?
+LazyData: true
