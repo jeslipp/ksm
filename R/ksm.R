@@ -23,7 +23,7 @@ loadLibrary <- function(path = ".") {
   if (file.exists("./_library/substrateLibrary.rda")) {
     load("./_library/substrateLibrary.rda", envir = .GlobalEnv)
   } else {
-    print("WARNING: Library file does not exists. ")
+    cat("WARNING: Library file does not exists.\n")
   }
   
 }
@@ -209,7 +209,8 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
   # map organism to full name
   organisms <- c("sp" = "Schizosaccharomyces_pombe", 
                  "hs" = "Homo_sapiens", 
-                 "mm" = "Mus_musculus")
+                 "mm" = "Mus_musculus", 
+                 "sc" = "Saccharomyces_cerevisiae")
   org <- organisms[org]
   # select substrate data
   gd <- data %.% 
@@ -235,8 +236,8 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
   # make interaction edges table
   bgFiles <- dir("./_biogrid/", pattern = "BIOGRID-ORGANISM-")
   bgFile <- bgFiles[grep(org, bgFiles)]
-  bgFile <- paste0("./_biogrid/", bgFile)
-  if (file.exists(bgFile)) {
+  if (length(bgFile) == 1) {
+    bgFile <- paste0("./_biogrid/", bgFile)
     bg <- read.table(bgFile, sep = "\t", quote = "", fill = TRUE)
     bg <- select(bg, V8, V9, V13)
     names(bg) <- c("A", "B", "type")
@@ -245,14 +246,17 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
     edgesInteraction <- unique(edgesInteraction)
     edges <- rbind(edgesInteraction, edgesPhospho)
   } else {
-    print("WARNING: BioGrid file not found. ")
+    cat("WARNING: No BioGrid interactions found.\n")
     edges <- edgesPhospho
   }
   # get GO annotation attributes for substrates
-  goFiles <- dir("./_go/", pattern = "DAVID_total")
+  goFiles <- dir("./_go/", pattern = "DAVID")
+  classFiles <- dir("./_go/", pattern = "CLASS")
   goFile <- goFiles[grep(kin, goFiles)]
-  goFile <- paste0("./_go/", goFile)
-  if (go == TRUE & file.exists(goFile)) {
+  classFile <- classFiles[grep(kin, classFiles)]
+  if (go == TRUE & length(goFile) == 1 & length(classFile) == 1) {
+    goFile <- paste0("./_go/", goFile)
+    classFile <- paste0("./_go/", classFile)
     ge <- read.table(goFile, sep = "\t", quote = "", header = TRUE, stringsAsFactors = FALSE)
     ge <- ge %.% filter(grepl("^GOTERM", Category)) %.%
       select(Term, Benjamini, Genes) %.%
@@ -273,7 +277,7 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
     for (i in substrates) {
       for (j in seq(idsByGo)) { goMat[i, j] <- ifelse(i %in% idsByGo[[j]], 1, 0) }
     }
-    classes <- read.table("./_go/classes.txt", sep = "\t", stringsAsFactors = FALSE)
+    classes <- read.table(classFile, sep = "\t", stringsAsFactors = FALSE)
     groups <- list()
     for (i in seq(nrow(classes))) {
       groups[[classes[i, 1]]] <- grep(classes[i, 2], names(idsByGo))
@@ -289,7 +293,7 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
     }
     go <- select(grouping, group)
   } else {
-    print("WARNING: GO Annotation file not found. ")
+    cat("WARNING: No GO annotations found.\n")
     go <- "Other"
   }
   
