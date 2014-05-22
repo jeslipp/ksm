@@ -253,8 +253,7 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
   goFiles <- dir("./_go/", pattern = "DAVID")
   classFiles <- dir("./_go/", pattern = "CLASS")
   goFile <- goFiles[grep(kin, goFiles)]
-  classFile <- classFiles[grep(kin, classFiles)]
-  if (go == TRUE & length(goFile) == 1 & length(classFile) == 1) {
+  if (go == TRUE & length(goFile) == 1 & length(classFiles) == 1) {
     goFile <- paste0("./_go/", goFile)
     classFile <- paste0("./_go/", classFile)
     ge <- read.table(goFile, sep = "\t", quote = "", header = TRUE, stringsAsFactors = FALSE)
