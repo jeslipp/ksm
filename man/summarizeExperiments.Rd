@@ -5,9 +5,6 @@
 \usage{
 summarizeExperiments()
 }
-\arguments{
-\item{data}{data.table}
-}
 \description{
 Description
 }

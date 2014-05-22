@@ -5,9 +5,6 @@
 \usage{
 summarizeKinases()
 }
-\arguments{
-\item{data}{data.table}
-}
 \description{
 Description
 }

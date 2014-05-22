@@ -339,7 +339,6 @@ kinases <- function(data = .dataAggregate) {
 #'
 #' Description
 #'
-#' @param data data.table
 #' @export
 
 summarizeExperiments <- function() {
@@ -350,11 +349,26 @@ summarizeExperiments <- function() {
 #'
 #' Description
 #'
-#' @param data data.table
 #' @export
 
 summarizeKinases <- function() {
   for (k in kinases()) { getKinaseSummary(kin = k) }
+}
+
+#' Get list of uniprot IDs for kinase
+#'
+#' Description
+#'
+#' @param kin character
+#' @param data data.table
+#' @importFrom dplyr filter %.% select 
+#' @export
+
+getUniprotIDs <- function(kin, data = .dataAggregate) {
+  uniprotIDs <- data %.% filter(kinase == kin) %.% select(Acc..) %.% unlist() %.% unique()
+  fn <- paste0("./_results/", kin, "_uniprot.txt")
+  write.table(uniprotIDs, file = fn, sep = "\n", row.names = FALSE, col.names = FALSE, 
+              quote = FALSE)
 }
 
 # Utility functions
