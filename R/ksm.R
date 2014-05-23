@@ -251,9 +251,9 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
   }
   # get GO annotation attributes for substrates
   goFiles <- dir("./_go/", pattern = "DAVID")
-  classFiles <- dir("./_go/", pattern = "CLASS")
+  classFile <- dir("./_go/", pattern = "CLASS")
   goFile <- goFiles[grep(kin, goFiles)]
-  if (go == TRUE & length(goFile) == 1 & length(classFiles) == 1) {
+  if (go == TRUE & length(goFile) == 1 & length(classFile) == 1) {
     goFile <- paste0("./_go/", goFile)
     classFile <- paste0("./_go/", classFile)
     ge <- read.table(goFile, sep = "\t", quote = "", header = TRUE, stringsAsFactors = FALSE)
