@@ -307,7 +307,6 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
   # make gml graph
   g <- graph.data.frame(edges, directed = TRUE, vertices = nodeAttr)
   g <- delete.edges(g, which(is.loop(g)))
-  g <- delete.edges(g, which(is.multiple(g)))
   g <- delete.vertices(g, which(igraph::degree(g) < 2 & nodeAttr$group == "Other"))
   write.graph(g, file = paste0("./_results/", kin, "_", interaction, ".gml"), format = "gml")
 }
