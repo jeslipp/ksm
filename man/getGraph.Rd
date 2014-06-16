@@ -18,6 +18,7 @@ getGraph(kin, org, interaction = "physical", go = TRUE,
 \item{data}{data.table}
 }
 \description{
-Description
+Generate gml network file for visualization of aggregate data for a given kinase.
+Network file can be viewed in Cytoscape (http://www.cytoscape.org/).
 }
 

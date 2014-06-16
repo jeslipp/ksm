@@ -18,6 +18,7 @@ getConsensus(kin, ids = 1, toFile = TRUE, path = ".",
 \item{data}{data.table}
 }
 \description{
-Description
+Generate list of aligned sequences for determination of consensus phosphorylation sites
+using a web-based interface such as Weblogo3 (http://weblogo.threeplusone.com/create.cgi).
 }
 

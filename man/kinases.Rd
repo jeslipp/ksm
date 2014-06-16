@@ -9,6 +9,6 @@ kinases(data = .dataAggregate)
 \item{data}{data.table}
 }
 \description{
-Description
+Helper function to get list of available kinases in library.
 }
 

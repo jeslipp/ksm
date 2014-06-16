@@ -9,6 +9,6 @@ generateLibrary(path = ".")
 \item{path}{character}
 }
 \description{
-Description
+Generates library of kinase-substrate mapping data from raw Protein Prospector files.
 }
 

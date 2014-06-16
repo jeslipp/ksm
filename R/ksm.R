@@ -12,7 +12,7 @@ library(igraph)
 
 #' Load kinase-subtrate mapping library
 #'
-#' Description
+#' Loads library of kinase-substrate mapping data from file. 
 #'
 #' @param path character
 #' @export
@@ -30,7 +30,7 @@ loadLibrary <- function(path = ".") {
 
 #' Generate kinase-subtrate mapping library
 #'
-#' Description
+#' Generates library of kinase-substrate mapping data from raw Protein Prospector files. 
 #'
 #' @param path character
 #' @import data.table
@@ -98,7 +98,8 @@ generateLibrary <- function(path = ".") {
 
 #' Generate mapping of Uniprot accession to protein sequence
 #'
-#' Description
+#' Generates mapping array from Uniprot accession to protein sequence from fasta files 
+#' available from http://www.uniprot.org/
 #'
 #' @param path character
 #' @import data.table
@@ -127,7 +128,8 @@ generateUniprotMapping <- function(path = ".") {
 
 #' Generate summary of kinase-substrate relationships for a kinase.
 #'
-#' Description
+#' Generate an aggregate table of kinase-substrate relationship for a given kinase. 
+#' Table is saved to file. 
 #'
 #' @param kin character
 #' @param toFile boolean
@@ -147,7 +149,8 @@ getKinaseSummary <- function(kin, toFile=TRUE, path=".", data = .dataAggregate) 
 
 #' Generate summary of kinase-substrate relationships for an experiment.
 #'
-#' Description
+#' Generate a summary table of kinase-substrate relationships for a given experiments. 
+#' Table is saved to file. 
 #'
 #' @param exp character
 #' @param toFile boolean
@@ -167,7 +170,8 @@ getExperimentSummary <- function(exp, toFile=TRUE, path=".", data=.dataFiltered)
 
 #' Generate list of local sequences around phosphorylation site. 
 #'
-#' Description
+#' Generate list of aligned sequences for determination of consensus phosphorylation sites
+#' using a web-based interface such as Weblogo3 (http://weblogo.threeplusone.com/create.cgi).
 #'
 #' @param kin character
 #' @param ids integer
@@ -194,7 +198,8 @@ getConsensus <- function(kin, ids=1, toFile=TRUE, path=".", data=.dataAggregate)
 
 #' Generate graph of substrates
 #'
-#' Description
+#' Generate gml network file for visualization of aggregate data for a given kinase. 
+#' Network file can be viewed in Cytoscape (http://www.cytoscape.org/). 
 #'
 #' @param kin character
 #' @param org character
@@ -313,7 +318,7 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
 
 #' Get list of experiments
 #'
-#' Description
+#' Helper function to get list of available experiments in library. 
 #'
 #' @param data data.table
 #' @export
@@ -325,7 +330,7 @@ experiments <- function(data = .dataAggregate) {
 
 #' Get list of kinases
 #'
-#' Description
+#' Helper function to get list of available kinases in library. 
 #'
 #' @param data data.table
 #' @export
@@ -336,7 +341,7 @@ kinases <- function(data = .dataAggregate) {
 
 #' Summarize all experiments
 #'
-#' Description
+#' Helper function to summarize all experiments in library. 
 #'
 #' @export
 
@@ -344,9 +349,9 @@ summarizeExperiments <- function() {
   for (e in experiments()) { getExperimentSummary(exp = e) }
 }
 
-#' Summarize all experiments
+#' Summarize all kinases
 #'
-#' Description
+#' Helper function to summarize all kinases in library. 
 #'
 #' @export
 
@@ -354,9 +359,10 @@ summarizeKinases <- function() {
   for (k in kinases()) { getKinaseSummary(kin = k) }
 }
 
-#' Get list of uniprot IDs for kinase
+#' Get list of Uniprot IDs for kinase
 #'
-#' Description
+#' Helper function to get list of Uniprot IDs of substrates of a given kinase. 
+#' Useful for downstream analysis such as GO annotation using DAVID (http://david.abcc.ncifcrf.gov/). 
 #'
 #' @param kin character
 #' @param data data.table
@@ -370,14 +376,9 @@ getUniprotIDs <- function(kin, data = .dataAggregate) {
               quote = FALSE)
 }
 
-# Utility functions
+### Utility functions
 
-#' Read mass spectrometry file.
-#'
-#' Description
-#'
-#' @param path character
-#' @import stringr
+# Read mass spectrometry file.
 
 .readMSFile <- function(path) {
   rawSubstrates <- read.delim(path, skip = 2, fill = TRUE, stringsAsFactors = FALSE,
@@ -390,24 +391,14 @@ getUniprotIDs <- function(kin, data = .dataAggregate) {
   rawSubstrates
 }
 
-#' Extract pattern from raw modification string.
-#'
-#' Description
-#'
-#' @param column character
-#' @param pattern character
+# Extract pattern from raw modification string.
 
 .extractPattern <- function(column, pattern) {
   matches <- str_match_all(column, pattern)
   matches <- sapply(matches, function(m) paste(m[, 2], collapse = ";"))
 }
 
-#' Extract consensus sequence for modification from protein sequence.
-#'
-#' Description
-#'
-#' @param row character
-#' @param uniTable data.table
+# Extract consensus sequence for modification from protein sequence.
 
 .extractConsensus <- function(row, uniTable) {
   sites <- row["sites"]
@@ -425,11 +416,7 @@ getUniprotIDs <- function(kin, data = .dataAggregate) {
   consensus <- paste(consensus, collapse = ";")
 }
 
-#' Create neccessary folders.
-#'
-#' Description
-#'
-#' @param path character
+# Create neccessary folders.
 
 .makeFolders <- function(path = ".") {
   if (!file.exists("./_library/")) {dir.create("./_library/", showWarnings = FALSE)}

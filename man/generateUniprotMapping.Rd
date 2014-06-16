@@ -12,6 +12,7 @@ generateUniprotMapping(path = ".")
 data.table
 }
 \description{
-Description
+Generates mapping array from Uniprot accession to protein sequence from fasta files
+available from http://www.uniprot.org/
 }
 

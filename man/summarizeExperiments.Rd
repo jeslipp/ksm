@@ -6,6 +6,6 @@
 summarizeExperiments()
 }
 \description{
-Description
+Helper function to summarize all experiments in library.
 }
 

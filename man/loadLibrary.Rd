@@ -9,6 +9,6 @@ loadLibrary(path = ".")
 \item{path}{character}
 }
 \description{
-Description
+Loads library of kinase-substrate mapping data from file.
 }
 

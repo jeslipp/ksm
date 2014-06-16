@@ -15,6 +15,7 @@ getExperimentSummary(exp, toFile = TRUE, path = ".", data = .dataFiltered)
 \item{data}{data.table}
 }
 \description{
-Description
+Generate a summary table of kinase-substrate relationships for a given experiments.
+Table is saved to file.
 }
 

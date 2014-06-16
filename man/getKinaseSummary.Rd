@@ -15,6 +15,7 @@ getKinaseSummary(kin, toFile = TRUE, path = ".", data = .dataAggregate)
 \item{data}{data.table}
 }
 \description{
-Description
+Generate an aggregate table of kinase-substrate relationship for a given kinase.
+Table is saved to file.
 }
 
