@@ -34,7 +34,7 @@ loadLibrary <- function(path = ".") {
 #'
 #' @param path character
 #' @import data.table
-#' @importFrom stringr str_replace
+#' @import stringr
 #' @importFrom dplyr filter %>% rbind_all mutate group_by ungroup arrange
 #' @export
 
