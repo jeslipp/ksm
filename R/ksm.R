@@ -34,7 +34,8 @@ loadLibrary <- function(path = ".") {
 #'
 #' @param path character
 #' @import data.table
-#' @importFrom dplyr filter %.% rbind_all mutate group_by ungroup arrange
+#' @importFrom stringr str_replace
+#' @importFrom dplyr filter %>% rbind_all mutate group_by ungroup arrange
 #' @export
 
 generateLibrary <- function(path = ".") {
@@ -52,37 +53,37 @@ generateLibrary <- function(path = ".") {
   fullData <- rbind_all(lapply(files, .readMSFile))
   
   # generate data set filtered by specific phosphopeptides
-  .dataFiltered <- fullData %.%
+  .dataFiltered <- fullData %>%
     # filter phosphopeptides
-    filter(grepl("Phospho", Protein.Mods)) %.%
+    filter(grepl("Phospho", Protein.Mods)) %>%
     # make type consistent
-    mutate(type = ifelse(toupper(type) %in% c("GK", "AS"), "AS", toupper(type))) %.%
+    mutate(type = ifelse(toupper(type) %in% c("GK", "AS"), "AS", toupper(type))) %>%
     # filter specific
-    group_by(experiment, DB.Peptide) %.%
-    mutate(specific = ifelse(any(type != "AS"), "unspecific", "specific")) %.%
-    ungroup() %.%
-    filter(specific == "specific") %.%
+    group_by(experiment, DB.Peptide) %>%
+    mutate(specific = ifelse(any(type != "AS"), "unspecific", "specific")) %>%
+    ungroup() %>%
+    filter(specific == "specific") %>%
     # extract phosphosites
-    mutate(sites = .extractPattern(Protein.Mods, "Phospho@([0-9|&]+)=*[0-9]*")) %.%
+    mutate(sites = .extractPattern(Protein.Mods, "Phospho@([0-9|&]+)=*[0-9]*")) %>%
     # extract SLIP score
-    mutate(slip = .extractPattern(Protein.Mods, "Phospho@[0-9|&]+=*([0-9]*)")) %.%
+    mutate(slip = .extractPattern(Protein.Mods, "Phospho@[0-9|&]+=*([0-9]*)")) %>%
     # extract independent IDs
-    group_by(UniProt.ID, sites, experiment) %.%
-    mutate(count = min(length(sites), length(unique(sample)))) %.%
-    filter(as.numeric(P.Value) == min(as.numeric(P.Value))) %.%
+    group_by(UniProt.ID, sites, experiment) %>%
+    mutate(count = min(length(sites), length(unique(sample)))) %>%
+    filter(as.numeric(P.Value) == min(as.numeric(P.Value))) %>%
     ungroup()
   
   # generate data set aggregated by kinase
-  .dataAggregate <- .dataFiltered %.%  
-    group_by(UniProt.ID, sites, kinase) %.%
-    mutate(count = sum(count)) %.%
-    filter(as.numeric(P.Value) == min(as.numeric(P.Value))) %.%
-    ungroup() %.%
+  .dataAggregate <- .dataFiltered %>%  
+    group_by(UniProt.ID, sites, kinase) %>%
+    mutate(count = sum(count)) %>%
+    filter(as.numeric(P.Value) == min(as.numeric(P.Value))) %>%
+    ungroup() %>%
     # get number of times peptide was found
-    group_by(kinase) %.%
+    group_by(kinase) %>%
     mutate(tries = length(unique(paste(experiment, sample, sep = "_"))), 
-           found = round(count / tries, 3)) %.%
-    ungroup() %.%
+           found = round(count / tries, 3)) %>%
+    ungroup() %>%
     # sort by kinase and protein
     arrange(kinase, Gene)
   
@@ -136,11 +137,11 @@ generateUniprotMapping <- function(path = ".") {
 #' @param path character
 #' @param data data.table
 #' @import data.table
-#' @importFrom dplyr filter %.%
+#' @importFrom dplyr filter %>%
 #' @export
 
 getKinaseSummary <- function(kin, toFile=TRUE, path=".", data = .dataAggregate) {
-  ks <- data %.% filter(kinase == kin)
+  ks <- data %>% filter(kinase == kin)
   if (toFile == TRUE) {
     fn <- paste0("./_results/", kin, "_summary.txt")
     write.table(ks, file = fn, sep = "\t", row.names = FALSE, quote = FALSE)
@@ -157,11 +158,11 @@ getKinaseSummary <- function(kin, toFile=TRUE, path=".", data = .dataAggregate) 
 #' @param path character
 #' @param data data.table
 #' @import data.table
-#' @importFrom dplyr filter %.%
+#' @importFrom dplyr filter %>%
 #' @export
 
 getExperimentSummary <- function(exp, toFile=TRUE, path=".", data=.dataFiltered) {
-  es <- data %.% filter(exp == experiment)
+  es <- data %>% filter(exp == experiment)
   if (toFile == TRUE) {
     fn <- paste0("./_results/", exp, "_summary.txt")
     write.table(es, file = fn, sep = "\t", row.names = FALSE, quote = FALSE)
@@ -179,11 +180,11 @@ getExperimentSummary <- function(exp, toFile=TRUE, path=".", data=.dataFiltered)
 #' @param path character
 #' @param data data.table
 #' @import data.table
-#' @importFrom dplyr filter %.% select
+#' @importFrom dplyr filter %>% select
 #' @export
 
 getConsensus <- function(kin, ids=1, toFile=TRUE, path=".", data=.dataAggregate) {
-  cs <- data %.% filter(kinase == kin & count >= ids) %.% select(consensus)
+  cs <- data %>% filter(kinase == kin & count >= ids) %>% select(consensus)
   cs <- unlist(lapply(cs, strsplit, ";"))
   # filter out too short sequences
   cs <- cs[nchar(cs) == 13]
@@ -207,7 +208,7 @@ getConsensus <- function(kin, ids=1, toFile=TRUE, path=".", data=.dataAggregate)
 #' @param go boolean
 #' @param data data.table
 #' @import igraph
-#' @importFrom dplyr filter %.% select group_by summarise arrange
+#' @importFrom dplyr filter %>% select group_by summarise arrange
 #' @export
 
 getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .dataAggregate) {
@@ -218,10 +219,10 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
                  "sc" = "Saccharomyces_cerevisiae")
   org <- organisms[org]
   # select substrate data
-  gd <- data %.% 
-    filter(kinase == kin) %.% 
-    select(Gene, found) %.%
-    group_by(Gene) %.% 
+  gd <- data %>% 
+    filter(kinase == kin) %>% 
+    select(Gene, found) %>%
+    group_by(Gene) %>% 
     summarise(weight = max(found))
   # eliminate nodes with empty gene names
   gd <- gd[nchar(gd[, 1]) > 0, ]
@@ -262,15 +263,15 @@ getGraph <- function(kin, org, interaction = "physical", go = TRUE, data = .data
     goFile <- paste0("./_go/", goFile)
     classFile <- paste0("./_go/", classFile)
     ge <- read.table(goFile, sep = "\t", quote = "", header = TRUE, stringsAsFactors = FALSE)
-    ge <- ge %.% filter(grepl("^GOTERM", Category)) %.%
-      select(Term, Benjamini, Genes) %.%
+    ge <- ge %>% filter(grepl("^GOTERM", Category)) %>%
+      select(Term, Benjamini, Genes) %>%
       arrange(as.numeric(Benjamini))
     idsByGo <- lapply(split(ge, ge$Term), "[", 3)
     idsByGo <- lapply(idsByGo, as.character)
     idsByGo <- lapply(idsByGo, strsplit, ", ")
     idsByGo <- lapply(idsByGo, "[[", 1)
     # map uniprot ids to gene names
-    uni2gene <- data %.% filter(kinase == kin) %.% select(Acc.., Gene) %.% unique()
+    uni2gene <- data %>% filter(kinase == kin) %>% select(Acc.., Gene) %>% unique()
     uni <- uni2gene[, "Acc.."]
     uni2gene <- as.character(uni2gene[, "Gene"])
     names(uni2gene) <- uni
@@ -366,11 +367,11 @@ summarizeKinases <- function() {
 #'
 #' @param kin character
 #' @param data data.table
-#' @importFrom dplyr filter %.% select 
+#' @importFrom dplyr filter %>% select 
 #' @export
 
 getUniprotIDs <- function(kin, data = .dataAggregate) {
-  uniprotIDs <- data %.% filter(kinase == kin) %.% select(Acc..) %.% unlist() %.% unique()
+  uniprotIDs <- data %>% filter(kinase == kin) %>% select(Acc..) %>% unlist() %>% unique()
   fn <- paste0("./_results/", kin, "_uniprot.txt")
   write.table(uniprotIDs, file = fn, sep = "\n", row.names = FALSE, col.names = FALSE, 
               quote = FALSE)
